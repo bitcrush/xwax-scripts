@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# start script for xwax (http://www.xwax.co.uk)
+# by rcn @ irc.freenode.net
+#
+# all configuration is done in the marked section. if this script is called
+# with the "-tw" parameter, the import-twitter script is used which initiates
+# playlist tweeting.
+
+### START CONFIGURATION #####################################################
+
+# path to music library
+MLIB="/mnt/sdb3/xwax"
+
+# define your crates in an array
+CRATE[1]="$MLIB/library"
+CRATE[2]="$MLIB/recent"
+CRATE[3]="$MLIB/tmp"
+CRATE[4]="$MLIB/re-edits"
+
+# define import and scan scripts
+IMPORT="$HOME/files/scripts/xwax/xwax-import"
+IMPORTWIT="$HOME/files/scripts/xwax/xwax-import-twitter"
+SCAN="$HOME/files/scripts/xwax/xwax-scan"
+
+XWAX="/usr/bin/xwax"		    # path to xwax binary
+SRATE=44100		    	    # sample rate in Hz
+BTIME=2			    	    # buffer time in ms
+PROT=1			    	    # deck protection (0 = off, 1 = on)
+TC1="serato_2a"		    	    # timecode on deck1
+TC2="serato_2a"		    	    # timecode on deck2
+RPM1=45			    	    # rpm of deck1 (33 or 45)
+RPM2=45			    	    # rpm of deck2 (33 or 45)
+DECK1="plughw:Audio4DJ,0,0"   	    # sound card device for deck1
+DECK2="plughw:Audio4DJ,0,1"   	    # sound card device for deck2
+LASTP="/tmp/xwax_last_played.txt"   # path to last_played file
+
+### END CONFIGURATION #######################################################
+
+# evaluate command line parameters
+for (( i=1; i<=$#; i++ )) ; do
+	case ${!i} in
+	'-h')	echo
+		echo "start script for xwax (http://www.xwax.co.uk)"
+		echo "by rcn @ irc.freenode.net"
+		echo
+		echo "usage: $0 [OPTION]..."
+		echo 
+		echo "  -h:	print this screen"
+		echo "  -tw:	use the import-twitter script for playlist tweeting"
+		echo 
+		exit 0
+		;;
+	'-tw')  IMPORT=$IMPORTWIT
+		;;
+	*)	echo
+		echo "unknown option ${!i}. aborting ..."
+		echo "use -h to get a list of possible parameters"
+		echo
+		exit 32
+		;;
+	esac
+done
+
+# delete last_played file at startup (if exists)
+if [ -f "$LASTP" ]; then rm $LASTP; fi
+
+# create a string of all the crates from the array
+CRATESTRING=""; for item in ${CRATE[*]}; do CRATESTRING="$CRATESTRING-l $item "; done
+
+# check for deck protection
+if [ $PROT = "1" ]; then PROT="-p "; else unset PROT; fi
+
+# run xwax
+$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATESTRING -m $BTIME -t $TC1 -$RPM1 -a $DECK1 -t $TC2 -$RPM2 -a $DECK2
+
+# run xwax with jack
+#$XWAX $PROT -i $IMPORT -s $SCAN $CRATESTRING -m $BTIME -t $TC1 -$RPM1 -j deck0 -t $TC2 -$RPM2 -j deck1
