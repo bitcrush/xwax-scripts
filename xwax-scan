@@ -1,0 +1,38 @@
+#!/bin/sh
+# vim: fdm=marker
+#
+# Take a pathname as an argument and output a playlist to standard
+# output and errors to standard error.
+#
+# The output format is repeated sequences of:
+#
+#   <pathname>\t<artist>\t<title>\n
+#
+# If the tab (\t) or newline (\n) characters appear in a filename,
+# unexpected things will happen.
+
+PATHNAME="$1"
+
+# follow symlinks
+if [ -L $PATHNAME ]; 
+    then PATHNAME="$(readlink $PATHNAME)"
+fi
+
+if [ -d "$PATHNAME" ]; then
+    find -L "$PATHNAME" -type f | grep -E '\.mp3$|\.ogg$|\.flac$|\.wav$|\.wma$'
+else
+    cat "$PATHNAME"
+fi | sed -n '
+{
+# /[<num>[.]] <artist> - <title>.ext
+s:/\([0-9]\+.\? \+\)\?\([^/]*\) \+- \+\([^/]*\)\.[a-zA-Z0-9]*$:\0\t\2\t\3:p
+t
+
+# /<artist> - <album>[/Disc <n>.*]/[<num>[.]] <title>.ext
+s:/\([^/]*\) \+- \+\([^/]*\)\(/Disc [0-9][^/]*\)\?/\([0-9]\+.\? \+\)\?\([^/]*\)\.[a-zA-Z0-9]*$:\0\t\1\t\5:p
+t
+
+# /[<num>[.]] <name>.ext
+s:/\([0-9]\+.\? \+\)\?\([^/]*\)\.[a-zA-Z0-9]*$:\0\t\t\2:p
+}
+'
