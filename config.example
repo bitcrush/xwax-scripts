@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# $HOME/.xwax/config
+
+# this is the configuration file for the xwax start script
+
+# path to music library
+MLIB="/media/xwax"
+
+# define your crates in an array
+CRATE[1]="$MLIB/library"
+CRATE[2]="$MLIB/recent"
+CRATE[3]="$MLIB/tmp"
+
+# define import and scan scripts
+IMPORT="$HOME/.xwax/xwax-import"
+SCAN="$HOME/.xwax/xwax-scan"
+
+# path to xwax binary
+XWAX="/usr/bin/xwax"
+
+# sample rate in Hz
+SRATE=44100
+
+# buffer time in ms
+BTIME=2
+
+# deck protection (bool, 1 = on)
+PROT=1
+
+# timecode on respective deck
+TC1="serato_2a"
+TC2="serato_2a"
+
+# speed in rpm on respective deck
+RPM1=33
+RPM2=33
+
+# sound card device for respective deck
+DECK1="plughw:Audio4DJ,0,0"
+DECK2="plughw:Audio4DJ,0,1"
+
+# path where playlists get written to
+PLSPATH="$HOME/.xwax/playlists"
+PLSFILE="$PLSPATH/$(date +%F_%H-%M-%S)_playlist.txt"
+
+# define your twitter client - there are several cli clients out there
+# f.e. bti (http://gregkh.github.com/bti/)
+TCLI="/usr/bin/bti"
+
+# define tweet message (clientside url shortening recommended)
+# %s is the filename of the loaded track (without leading track number and
+# filetype extension).
+TWEETMSG="#nowplaying: %s http://streaming.fueralle.org:8000/radiot.ogg.m3u #dnb #drumandbass"
+
+# path to last_played file (required for tweeting)
+LPLYD="/tmp/xwax_last_played.txt"
+
