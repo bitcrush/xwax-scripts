@@ -1,0 +1,76 @@
+#!/bin/bash -x
+#
+# This script takes a filename as an argument, and outputs signed,
+# little-endian, 16-bit, 2 channel audio on standard output, errors to
+# standard error and tweets the name of a tune on loading the next one.
+# Make sure all your filenames match one of the following formats:
+# '$nr $artist - $title.$ext' or '$artist - $title.$ext'
+#
+# You can adjust this script yourself to customise the support for
+# different file formats and codecs.
+
+FILE="$1"
+TUNE="${FILE##*/}"
+
+# check if a track had been loaded before. if so, tweet it.
+if [[ $TW_SWITCH -eq 1 &&  -f "$TW_LPLYD" ]]; then
+	# save previously loaded track to variable
+	TW_TUNE=$(cat "$TW_LPLYD")
+	# determine its filetype extension
+	TW_EXT=${TW_TUNE##*.}
+	# trim its filename to '$artist - $title'
+	TW_TUNE=$(echo "$TW_TUNE" | sed "s/^[0-9]*\ //;s/\.$TW_EXT$//")
+	TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
+	# tweet in background and redirect stdout to stderr
+	#echo "$TWEET" | $TCLI >&2 &
+	echo $TWEET >> /tmp/tweet.test
+else
+	unset TW_TUNE
+fi
+
+# determine filetype extension of currently loaded track
+EXT=${TUNE##*.}
+
+# trim filename to '$artist - $title'
+PLS_TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
+
+# write to file if PLS_FILE if configured
+if [ $PLS_SWITCH -eq 1 ]; then echo $PLS_TUNE >> $PLS_FILE ; fi
+
+# write to last_played file if configured
+if [[ $TW_SWITCH -eq 1 && -n "$TW_LPLYD" ]]; then echo $TUNE > $TW_LPLYD; fi
+
+case "$FILE" in
+
+*.ogg)
+    echo "Calling Ogg decoder..." >&2
+    exec oggdec -Q --bits 16 --endianness 0 --sign 1 --raw --output - "$FILE"
+    ;;
+
+*.aac)
+    echo "Calling AAC decoder..." >&2
+    exec faad -b 1 -f 2 -w "$FILE"
+    ;;
+
+*.cdaudio)
+    echo "Calling CD extract..." >&2
+    exec cdparanoia -r `cat "$FILE"` -
+    ;;
+
+*.mp3)
+    echo "Calling MP3 decoder..." >&2
+    exec mpg123 -q -s --rate 44100 --stereo "$FILE"
+    ;;
+
+*.flac)
+    echo "Calling FLAC decoder..." >&2
+    exec flac -d -c -s --force-raw-format --sign=signed --endian=little "$FILE"
+    ;;
+
+*)
+    echo "Calling fallback decoder..." >&2
+    exec ffmpeg -v 0 -i "$FILE" -f s16le -ar 44100 -
+    #exec sox "$FILE" -t raw -s -
+    ;;
+
+esac
