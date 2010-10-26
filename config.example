@@ -25,7 +25,7 @@ SRATE=44100
 BTIME=8
 
 # deck protection (bool, 1 = on)
-PROT=1
+PROT=0
 
 # timecode on respective deck
 TC1="serato_2a"
@@ -35,7 +35,7 @@ TC2="serato_2a"
 RPM1=33
 RPM2=33
 
-# sound card device for respective deck
+# sound card device for respective deck (check output of 'aplay -l')
 DECK1="plughw:Audio4DJ,0,0"
 DECK2="plughw:Audio4DJ,0,1"
 
