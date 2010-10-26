@@ -22,8 +22,7 @@ if [[ $TW_SWITCH -eq 1 &&  -f "$TW_LPLYD" ]]; then
 	TW_TUNE=$(echo "$TW_TUNE" | sed "s/^[0-9]*\ //;s/\.$TW_EXT$//")
 	TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
 	# tweet in background and redirect stdout to stderr
-	#echo "$TWEET" | $TCLI >&2 &
-	echo $TWEET >> /tmp/tweet.test
+	echo "$TWEET" | "$TCLI" >&2 &
 fi
 
 # determine filetype extension of currently loaded track
@@ -38,6 +37,7 @@ PLS_TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
 # write to last_played file if configured
 [[ $TW_SWITCH -eq 1 && -n "$TW_LPLYD" ]] && echo $TUNE > $TW_LPLYD
 
+# decode input to raw audio and send to stdout
 case "$FILE" in
 
 *.ogg)
