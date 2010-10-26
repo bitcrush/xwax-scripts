@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # This script takes a filename as an argument, and outputs signed,
 # little-endian, 16-bit, 2 channel audio on standard output, errors to
@@ -24,8 +24,6 @@ if [[ $TW_SWITCH -eq 1 &&  -f "$TW_LPLYD" ]]; then
 	# tweet in background and redirect stdout to stderr
 	#echo "$TWEET" | $TCLI >&2 &
 	echo $TWEET >> /tmp/tweet.test
-else
-	unset TW_TUNE
 fi
 
 # determine filetype extension of currently loaded track
@@ -34,11 +32,11 @@ EXT=${TUNE##*.}
 # trim filename to '$artist - $title'
 PLS_TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
 
-# write to file if PLS_FILE if configured
-if [ $PLS_SWITCH -eq 1 ]; then echo $PLS_TUNE >> $PLS_FILE ; fi
+# write to PLS_FILE if configured
+[[ $PLS_SWITCH -eq 1 ]] && echo $PLS_TUNE >> $PLS_FILE
 
 # write to last_played file if configured
-if [[ $TW_SWITCH -eq 1 && -n "$TW_LPLYD" ]]; then echo $TUNE > $TW_LPLYD; fi
+[[ $TW_SWITCH -eq 1 && -n "$TW_LPLYD" ]] && echo $TUNE > $TW_LPLYD
 
 case "$FILE" in
 
