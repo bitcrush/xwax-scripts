@@ -3,55 +3,47 @@
 # start script for xwax (http://www.xwax.co.uk)
 # by rcn @ irc.freenode.net
 #
-# all configuration is done in the marked section. if this script is called
-# with the "-tw" parameter, the import-twitter script is used which initiates
-# playlist tweeting.
+# all configuration is done in the configfile (default: ~/.xwax/config).
 
-### START CONFIGURATION #####################################################
+# source configuration file
+export CONFIGFILE="$HOME/.xwax/config"
 
-# path to music library
-MLIB="/mnt/sdb3/xwax"
+if [ -r "$CONFIGFILE" ]; then
+    source $CONFIGFILE
+else
+    echo
+    echo "error: $CONFIGFILE doen't exist or is not readable by the user."
+    echo
+    exit 1
+fi
 
-# define your crates in an array
-CRATE[1]="$MLIB/library"
-CRATE[2]="$MLIB/recent"
-CRATE[3]="$MLIB/tmp"
-CRATE[4]="$MLIB/re-edits"
-
-# define import and scan scripts
-IMPORT="$HOME/files/scripts/xwax/xwax-import"
-IMPORTWIT="$HOME/files/scripts/xwax/xwax-import-twitter"
-SCAN="$HOME/files/scripts/xwax/xwax-scan"
-
-XWAX="/usr/bin/xwax"		    # path to xwax binary
-SRATE=44100		    	    # sample rate in Hz
-BTIME=2			    	    # buffer time in ms
-PROT=1			    	    # deck protection (0 = off, 1 = on)
-TC1="serato_2a"		    	    # timecode on deck1
-TC2="serato_2a"		    	    # timecode on deck2
-RPM1=45			    	    # rpm of deck1 (33 or 45)
-RPM2=45			    	    # rpm of deck2 (33 or 45)
-DECK1="plughw:Audio4DJ,0,0"   	    # sound card device for deck1
-DECK2="plughw:Audio4DJ,0,1"   	    # sound card device for deck2
-LASTP="/tmp/xwax_last_played.txt"   # path to last_played file
-
-### END CONFIGURATION #######################################################
+export TW_SWITCH=0
+export PLS_SWITCH=0
 
 # evaluate command line parameters
 for (( i=1; i<=$#; i++ )) ; do
 	case ${!i} in
-	'-h')	echo
+	'-h'|'--help')
+		echo
 		echo "start script for xwax (http://www.xwax.co.uk)"
 		echo "by rcn @ irc.freenode.net"
 		echo
-		echo "usage: $0 [OPTION]..."
+		echo "usage: ${0##*/} [<options>]"
 		echo 
 		echo "  -h:	print this screen"
+		echo "  -pl:	write played tracks to file"
 		echo "  -tw:	use the import-twitter script for playlist tweeting"
 		echo 
 		exit 0
 		;;
-	'-tw')  IMPORT=$IMPORTWIT
+	'-pl')	export PLS_SWITCH=1
+		export PLS_FILE
+		if [ ! -d "$PLS_PATH" ]; then mkdir -p "$PLS_PATH"; fi
+		;;
+	'-tw')	export TW_SWITCH=1
+		export TW_CLI
+		export TW_LPLYD
+		export TW_MSG
 		;;
 	*)	echo
 		echo "unknown option ${!i}. aborting ..."
@@ -63,16 +55,13 @@ for (( i=1; i<=$#; i++ )) ; do
 done
 
 # delete last_played file at startup (if exists)
-if [ -f "$LASTP" ]; then rm $LASTP; fi
+if [ -f "$TW_LPLYD" ]; then rm $TW_LPLYD; fi
 
 # create a string of all the crates from the array
 CRATESTRING=""; for item in ${CRATE[*]}; do CRATESTRING="$CRATESTRING-l $item "; done
 
 # check for deck protection
-if [ $PROT = "1" ]; then PROT="-p "; else unset PROT; fi
+if [ $PROT -eq 1 ]; then PROT="-p "; else unset PROT; fi
 
 # run xwax
 $XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATESTRING -m $BTIME -t $TC1 -$RPM1 -a $DECK1 -t $TC2 -$RPM2 -a $DECK2
-
-# run xwax with jack
-#$XWAX $PROT -i $IMPORT -s $SCAN $CRATESTRING -m $BTIME -t $TC1 -$RPM1 -j deck0 -t $TC2 -$RPM2 -j deck1
