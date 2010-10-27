@@ -12,27 +12,25 @@
 FILE="$1"
 TUNE="${FILE##*/}"
 
-# check if a track had been loaded before. if so, tweet it.
-if [[ $TW_SWITCH -eq 1 &&  -f "$TW_LPLYD" ]]; then
-	# save previously loaded track to variable
-	TW_TUNE=$(cat "$TW_LPLYD")
-	# determine its filetype extension
-	TW_EXT=${TW_TUNE##*.}
-	# trim its filename to '$artist - $title'
-	TW_TUNE=$(echo "$TW_TUNE" | sed "s/^[0-9]*\ //;s/\.$TW_EXT$//")
-	TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
-	# tweet in background and redirect stdout to stderr
-	echo "$TWEET" | "$TCLI" >&2 &
-fi
+tweet() {
+    # save previously loaded track to variable
+    TW_TUNE=$(cat "$TW_LPLYD")
+    # tweet in background and redirect stdout to stderr
+    TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
+    echo "$TWEET" | "$TCLI" >&2 &
+}
 
 # determine filetype extension of currently loaded track
 EXT=${TUNE##*.}
 
 # trim filename to '$artist - $title'
-PLS_TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
+TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
+
+# check if a track had been loaded before. if so, tweet it.
+[[ $TW_SWITCH -eq 1 && -f "$TW_LPLYD" ]] && tweet
 
 # write to PLS_FILE if configured
-[[ $PLS_SWITCH -eq 1 ]] && echo $PLS_TUNE >> $PLS_FILE
+[[ $PLS_SWITCH -eq 1 ]] && echo $TUNE >> $PLS_FILE
 
 # write to last_played file if configured
 [[ $TW_SWITCH -eq 1 && -n "$TW_LPLYD" ]] && echo $TUNE > $TW_LPLYD
