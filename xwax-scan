@@ -14,9 +14,7 @@
 PATHNAME="$1"
 
 # follow symlinks
-if [ -L $PATHNAME ]; 
-    then PATHNAME="$(readlink $PATHNAME)"
-fi
+[[ -L $PATHNAME ]] && PATHNAME="$(readlink $PATHNAME)"
 
 if [ -d "$PATHNAME" ]; then
     find -L "$PATHNAME" -type f | grep -E '\.mp3$|\.ogg$|\.flac$|\.wav$|\.wma$'
