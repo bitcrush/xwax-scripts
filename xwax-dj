@@ -27,9 +27,9 @@ helpexit() {
 export CONFIGFILE="$HOME/.xwax/config"
 
 if [ -r "$CONFIGFILE" ]; then
-	source $CONFIGFILE
+    source $CONFIGFILE
 else
-	errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
+    errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 fi
 
 export TW_SWITCH=0
@@ -37,23 +37,23 @@ export PLS_SWITCH=0
 
 # evaluate command line parameters
 for (( i=1; i<=$#; i++ )) ; do
-	case ${!i} in
-		'-h'|'--help')
-				helpexit; exit 0
-				;;
-		'-pl')	[[ -d "$PLS_PATH" ]] || mkdir -p "$PLS_PATH"
-		        export PLS_SWITCH=1
-				export PLS_FILE
-				;;
-		'-tw')	[[ -e `which "$TW_CLI"` ]] || errorexit "$TW_CLI not found"
-				export TW_SWITCH=1
-				export TW_CLI
-				export TW_LPLYD
-				export TW_MSG
-				;;
-		*)		helpexit
-				errorexit "unknown option ${!i}. aborting ..."
-				;;
+    case ${!i} in
+        '-h'|'--help')
+                helpexit; exit 0
+                ;;
+        '-pl')  [[ -d "$PLS_PATH" ]] || mkdir -p "$PLS_PATH"
+                export PLS_SWITCH=1
+                export PLS_FILE
+                ;;
+        '-tw')  [[ -e `which "$TW_CLI"` ]] || errorexit "$TW_CLI not found"
+                export TW_SWITCH=1
+                export TW_CLI
+                export TW_LPLYD
+                export TW_MSG
+                ;;
+        *)      helpexit
+                errorexit "unknown option ${!i}. aborting ..."
+                ;;
     esac
 done
 
