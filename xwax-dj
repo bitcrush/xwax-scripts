@@ -1,20 +1,35 @@
 #!/bin/bash
+# vim: fdm=marker ts=4 sw=4
 
 # start script for xwax (http://www.xwax.co.uk)
 # by rcn @ irc.freenode.net
 #
 # all configuration is done in the configfile (default: ~/.xwax/config).
 
+# functions {{{
+errorexit() { echo; echo "error: $*"; echo; exit 1; }
+
+helpexit() {
+    echo
+    echo -e "start script for xwax (http://www.xwax.co.uk)"
+    echo -e "by rcn @ irc.freenode.net"
+    echo
+    echo -e "usage:\t ${0##*/} [<options>]"
+    echo
+    echo -e "  -h: \t print this screen"
+    echo -e "  -pl:\t write played tracks to file"
+    echo -e "  -tw:\t use the import-twitter script for playlist tweeting"
+    echo 
+}
+# }}}
+
 # source configuration file
 export CONFIGFILE="$HOME/.xwax/config"
 
 if [ -r "$CONFIGFILE" ]; then
-    source $CONFIGFILE
+	source $CONFIGFILE
 else
-    echo
-    echo "error: $CONFIGFILE doen't exist or is not readable by the user."
-    echo
-    exit 1
+	errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 fi
 
 export TW_SWITCH=0
@@ -23,41 +38,29 @@ export PLS_SWITCH=0
 # evaluate command line parameters
 for (( i=1; i<=$#; i++ )) ; do
 	case ${!i} in
-	'-h'|'--help')
-		echo
-		echo "start script for xwax (http://www.xwax.co.uk)"
-		echo "by rcn @ irc.freenode.net"
-		echo
-		echo "usage: ${0##*/} [<options>]"
-		echo 
-		echo "  -h:	print this screen"
-		echo "  -pl:	write played tracks to file"
-		echo "  -tw:	use the import-twitter script for playlist tweeting"
-		echo 
-		exit 0
-		;;
-	'-pl')	export PLS_SWITCH=1
-		export PLS_FILE
-		if [ ! -d "$PLS_PATH" ]; then mkdir -p "$PLS_PATH"; fi
-		;;
-	'-tw')	export TW_SWITCH=1
-		export TW_CLI
-		export TW_LPLYD
-		export TW_MSG
-		;;
-	*)	echo
-		echo "unknown option ${!i}. aborting ..."
-		echo "use -h to get a list of possible parameters"
-		echo
-		exit 32
-		;;
-	esac
+		'-h'|'--help')
+				helpexit; exit 0
+				;;
+		'-pl')	[[ -d "$PLS_PATH" ]] || mkdir -p "$PLS_PATH"
+		        export PLS_SWITCH=1
+				export PLS_FILE
+				;;
+		'-tw')	[[ -e `which "$TW_CLI"` ]] || errorexit "$TW_CLI not found"
+				export TW_SWITCH=1
+				export TW_CLI
+				export TW_LPLYD
+				export TW_MSG
+				;;
+		*)		helpexit
+				errorexit "unknown option ${!i}. aborting ..."
+				;;
+    esac
 done
 
 # delete last_played file at startup (if exists)
 [[ -f "$TW_LPLYD" ]] && rm $TW_LPLYD
 
-# create a string of all the crates from the array
+# create a string from all the crates specified in the array
 CRATESTRING=""; for item in ${CRATE[*]}; do CRATESTRING="$CRATESTRING-l $item "; done
 
 # check for deck protection
@@ -65,3 +68,4 @@ if [ $PROT -eq 1 ]; then PROT="-p "; else unset PROT; fi
 
 # run xwax
 $XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATESTRING -m $BTIME -t $TC1 -$RPM1 -a $DECK1 -t $TC2 -$RPM2 -a $DECK2
+
