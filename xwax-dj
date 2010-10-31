@@ -9,7 +9,7 @@
 # functions {{{
 errorexit() { echo; echo "error: $*"; echo; exit 1; }
 
-helpexit() {
+helpscreen() {
     echo
     echo -e "start script for xwax (http://www.xwax.co.uk)"
     echo -e "by rcn @ irc.freenode.net"
@@ -51,7 +51,7 @@ for (( i=1; i<=$#; i++ )) ; do
                 export TW_LPLYD
                 export TW_MSG
                 ;;
-        *)      helpexit
+        *)      helpscreen
                 errorexit "unknown option ${!i}. aborting ..."
                 ;;
     esac
