@@ -12,12 +12,10 @@
 # unexpected things will happen.
 
 PATHNAME="$1"
-
-# follow symlinks
-[[ -L $PATHNAME ]] && PATHNAME="$(readlink $PATHNAME)"
+FILTER="-iname *.ogg -o -iname *.aac -o -iname *.cdaudio -o -iname *.mp3 -o -iname *.flac -o -iname *.wav"
 
 if [ -d "$PATHNAME" ]; then
-    find -L "$PATHNAME" -type f | grep -E '\.mp3$|\.ogg$|\.flac$|\.wav$|\.wma$'
+    find "$PATHNAME" $FILTER -type f
 else
     cat "$PATHNAME"
 fi | sed -n '
