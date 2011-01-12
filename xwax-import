@@ -17,7 +17,7 @@ tweet() {
     TW_TUNE=$(cat "$TW_LPLYD")
     # tweet in background and redirect stdout to stderr
     TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
-    echo "$TWEET" | "$TCLI" >&2 &
+    echo "$TWEET" | "$TW_CLI" >&2 &
 }
 
 # determine filetype extension of currently loaded track
