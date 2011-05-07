@@ -12,7 +12,13 @@
 # unexpected things will happen.
 
 PATHNAME="$1"
-FILTER="-iname '*.ogg' -o -iname '*.aac' -o -iname '*.cdaudio' -o -iname '*.mp3' -o -iname '*.flac' -o -iname '*.wav' -o"
+FILTER="-iname '*.ogg' -o \
+        -iname '*.aac' -o \
+        -iname '*.cdaudio' -o \
+        -iname '*.mp3' -o \
+        -iname '*.flac' -o \
+        -iname '*.m4a' -o \
+        -iname '*.wav' -o"
 
 if [ -d "$PATHNAME" ]; then
     find -L "$PATHNAME" $FILTER -type f
