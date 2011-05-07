@@ -6,14 +6,20 @@
 # path to music library
 MLIB="/media/music"
 
+# path to playlists (to use for playing, not logging!)
+PLAYLISTS="/mnt/sdb3/xwax/playlists"
+
 # define your crates in an array
 CRATE[1]="$MLIB/library"
 CRATE[2]="$MLIB/recent"
 CRATE[3]="$MLIB/tmp"
 
-# define import and scan scripts
-IMPORT="$HOME/.xwax/xwax-import"
-SCAN="$HOME/.xwax/xwax-scan"
+# each subfolder found in CRATEX is displayed in a seperate crate (optional)
+#CRATEX[1]="$MLIB/tmp"
+
+# define import and scan scripts (optional)
+#IMPORT="$HOME/.xwax/xwax-import"
+#SCAN="$HOME/.xwax/xwax-scan"
 
 # path to xwax binary
 XWAX="/usr/bin/xwax"
@@ -27,9 +33,12 @@ BTIME=8
 # deck protection (bool, 1 = on)
 PROT=0
 
-# timecode on respective deck
-TC1="serato_2a"
-TC2="serato_2a"
+# timecodes on respective deck (optional - default: serato_2a)
+# xwax -h for a list of available timecodes
+TC1[1]="serato_2a"
+TC1[2]="serato_cd"
+TC2[1]="serato_2a"
+TC2[2]="serato_cd"
 
 # speed in rpm on respective deck
 RPM1=33
