@@ -3,8 +3,9 @@
 
 # start script for xwax (http://www.xwax.co.uk)
 # by rcn @ irc.freenode.net
+# get the latest version from https://github.com/bitcrush/xwax-scripts
 #
-# all configuration is done in the configfile (default: ~/.xwax/config).
+# all configuration is done in the config file (default: ~/.xwax/config).
 
 # functions {{{
 errorexit() { echo; echo "error: $*"; echo; exit 1; }
@@ -21,31 +22,64 @@ helpscreen() {
     echo -e "  -tw:\t use the import-twitter script for playlist tweeting"
     echo 
 }
+
+create_tc_string() {
+    # create a string for each timecode array
+    for tc1 in ${TC1[@]}; do TC1S+="-t $tc1 "; done
+    for tc2 in ${TC2[@]}; do TC2S+="-t $tc2 "; done
+}
+
+create_cr_string() {
+    # create a string from all the non-empty crates specified in the CRATE array
+    for crate in ${CRATE[@]}; do [[ $(ls -A $crate) ]] && CRATES+="-l \"$crate\" "; done
+}
+
+create_cs_string() {
+    # create a string from all non-empty sub folders specified in the CRATEX array
+    IFS=$'\n'
+    for crate in ${CRATEX[@]}
+    do
+        for scrate in `find $crate -maxdepth 1 -type d`
+        do
+            CRATES+="-l \"$scrate\" "
+        done
+    done
+    unset IFS
+}
+
+create_pl_string() {
+    # create a string from all playlists found in $PLAYLISTS
+    IFS=$'\n'
+    LISTARRAY=($(find $PLAYLISTS -type f ! -iname '.current'))
+    tLen=${#LISTARRAY[@]}
+    unset IFS
+    
+    for (( i=0; i<${tLen}; i++ ));
+    do
+        [[ -s ${LISTARRAY[$i]} ]] && LISTS+="-p \"${LISTARRAY[$i]}\" "
+    done
+}
+
 # }}}
 
 # source configuration file
 export CONFIGFILE="$HOME/.xwax/config"
-
-if [ -r "$CONFIGFILE" ]; then
-    source $CONFIGFILE
-else
-    errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
-fi
-
 export TW_SWITCH=0
 export PLS_SWITCH=0
+
+[[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
 # evaluate command line parameters
 for (( i=1; i<=$#; i++ )) ; do
     case ${!i} in
         '-h'|'--help')
-                helpexit; exit 0
+                helpscreen; exit 0
                 ;;
-        '-pl')  [[ -d "$PLS_PATH" ]] || mkdir -p "$PLS_PATH"
+        '-pl')  [[ -d $PLS_PATH ]] || mkdir -p "$PLS_PATH"
                 export PLS_SWITCH=1
                 export PLS_FILE
                 ;;
-        '-tw')  [[ -e `which "$TW_CLI"` ]] || errorexit "$TW_CLI not found"
+        '-tw')  [[ -e `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
                 export TW_SWITCH=1
                 export TW_CLI
                 export TW_LPLYD
@@ -58,14 +92,20 @@ for (( i=1; i<=$#; i++ )) ; do
 done
 
 # delete last_played file at startup (if exists)
-[[ -f "$TW_LPLYD" ]] && rm $TW_LPLYD
-
-# create a string from all the crates specified in the array
-CRATESTRING=""; for item in ${CRATE[*]}; do CRATESTRING="$CRATESTRING-l $item "; done
+[[ -f $TW_LPLYD ]] && rm $TW_LPLYD
 
 # check for deck protection
-if [ $PROT -eq 1 ]; then PROT="-p "; else unset PROT; fi
+[[ $PROT -eq 1 ]] && PROT="-dp " || unset PROT
+
+# create strings
+create_tc_string
+create_cr_string
+create_cs_string
+create_pl_string
+
+# generate command line
+START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS -m $BTIME $TC1S -$RPM1 -a $DECK1 $TC2S -$RPM2 -a $DECK2"
 
 # run xwax
-$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATESTRING -m $BTIME -t $TC1 -$RPM1 -a $DECK1 -t $TC2 -$RPM2 -a $DECK2
+echo $START | sh
 
