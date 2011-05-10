@@ -17,10 +17,20 @@ helpscreen() {
     echo
     echo -e "usage:\t ${0##*/} [<options>]"
     echo
-    echo -e "  -h: \t print this screen"
-    echo -e "  -pl:\t write played tracks to file"
+    echo -e "  -h:\t print this screen"
+    echo -e "  -log:\t log played tracks to file"
     echo -e "  -tw:\t use the import-twitter script for playlist tweeting"
     echo 
+}
+
+find_audio_files() {
+    find $1 -follow -iname '*.ogg' -o \
+                    -iname '*.aac' -o \
+                    -iname '*.cdaudio' -o \
+                    -iname '*.mp3' -o \
+                    -iname '*.flac' -o \
+                    -iname '*.m4a' -o \
+                    -iname '*.wav'
 }
 
 create_tc_string() {
@@ -31,7 +41,10 @@ create_tc_string() {
 
 create_cr_string() {
     # create a string from all the non-empty crates specified in the CRATE array
-    for crate in ${CRATE[@]}; do [[ $(ls -A $crate) ]] && CRATES+="-l \"$crate\" "; done
+    for crate in ${CRATE[@]}
+    do
+        [[ `find_audio_files $crate | wc -l` != 0 ]] && CRATES+="-l \"$crate\" "
+    done
 }
 
 create_cs_string() {
@@ -65,7 +78,7 @@ create_pl_string() {
 # source configuration file
 export CONFIGFILE="$HOME/.xwax/config"
 export TW_SWITCH=0
-export PLS_SWITCH=0
+export LOG_SWITCH=0
 
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
@@ -75,9 +88,9 @@ for (( i=1; i<=$#; i++ )) ; do
         '-h'|'--help')
                 helpscreen; exit 0
                 ;;
-        '-pl')  [[ -d $PLS_PATH ]] || mkdir -p "$PLS_PATH"
-                export PLS_SWITCH=1
-                export PLS_FILE
+        '-log') [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
+                export LOG_SWITCH=1
+                export LOG_FILE
                 ;;
         '-tw')  [[ -e `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
                 export TW_SWITCH=1
