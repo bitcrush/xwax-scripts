@@ -49,8 +49,8 @@ DECK1="plughw:Audio4DJ,0,0"
 DECK2="plughw:Audio4DJ,0,1"
 
 # path where playlists get written to (will be created if nonexistent)
-PLS_PATH="$HOME/.xwax/playlists"
-PLS_FILE="$PLS_PATH/$(date +%F_%H-%M-%S)_playlist.txt"
+LOG_PATH="$HOME/.xwax/playlists"
+LOG_FILE="$LOG_PATH/$(date +%F_%H-%M-%S)_playlist.txt"
 
 # define your twitter client - there are several cli clients out there
 # f.e. bti (http://gregkh.github.com/bti/)
