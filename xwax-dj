@@ -19,7 +19,7 @@ helpscreen() {
     echo
     echo -e "  -h:\tprint this screen"
     echo -e "  -log:\tlog played tracks to file"
-    echo -e "  -n:\tcheck for nonempty crates before adding"
+    echo -e "  -n:\tavoid adding empty crates"
     echo -e "  -tw:\tuse the import-twitter script for playlist tweeting"
     echo 
 }
@@ -35,13 +35,13 @@ find_audio_files() {
 }
 
 create_tc_string() {
-    # create a string for each timecode array
+    # create a string from each timecode array
     for tc1 in ${TC1[@]}; do TC1S+="-t $tc1 "; done
     for tc2 in ${TC2[@]}; do TC2S+="-t $tc2 "; done
 }
 
 create_cr_string() {
-    # create a string from all the non-empty crates specified in the CRATE array
+    # create a string from all the crates specified in the CRATE array
     for crate in ${CRATE[@]}
     do
         if [[ $CHECK_NONEMPTY = 1 ]]; then
@@ -53,20 +53,24 @@ create_cr_string() {
 }
 
 create_cs_string() {
-    # create a string from all non-empty sub folders specified in the CRATEX array
+    # create a string from the sub folders of those crates specified in the CRATEX array
     IFS=$'\n'
     for crate in ${CRATEX[@]}
     do
-        for scrate in `find $crate -maxdepth 1 -type d`
+        for scrate in `find $crate -follow -type d`
         do
-            CRATES+="-l \"$scrate\" "
+            if [[ $CHECK_NONEMPTY = 1 ]]; then
+                [[ `find_audio_files $scrate | wc -l` != 0 ]] && CRATES+="-l \"$scrate\" "
+            else
+                CRATES+="-l \"$scrate\" "
+            fi
         done
     done
     unset IFS
 }
 
 create_pl_string() {
-    # create a string from all playlists found in $PLAYLISTS
+    # create a string from all nonempty playlists found in $PLAYLISTS
     IFS=$'\n'
     LISTARRAY=($(find $PLAYLISTS -type f ! -iname '.current'))
     tLen=${#LISTARRAY[@]}
