@@ -30,23 +30,22 @@ SRATE=44100
 # buffer time in ms
 BTIME=8
 
-# deck protection (bool, 1 = on)
-PROT=0
-
 # timecodes on respective deck (optional - default: serato_2a)
+# last element of each array will be active after starting xwax
 # xwax -h for a list of available timecodes
-TC1[1]="serato_2a"
-TC1[2]="serato_cd"
-TC2[1]="serato_2a"
-TC2[2]="serato_cd"
+TC1=("serato_2b" "serato_2a")
+TC2=("serato_2b" "serato_2a")
 
 # speed in rpm on respective deck
-RPM1=33
-RPM2=33
+RPM[1]=33
+RPM[2]=33
 
 # sound card device for respective deck (check output of 'aplay -l')
-DECK1="plughw:Audio4DJ,0,0"
-DECK2="plughw:Audio4DJ,0,1"
+DECK[1]="plughw:Audio4DJ,0,0"
+DECK[2]="plughw:Audio4DJ,0,1"
+
+# deck protection (bool, 1 = on)
+PROT=0
 
 # path where playlists get written to (will be created if nonexistent)
 LOG_PATH="$HOME/.xwax/playlists"
@@ -57,7 +56,7 @@ LOG_FILE="$LOG_PATH/$(date +%F_%H-%M-%S)_playlist.txt"
 TW_CLI="/usr/bin/bti"
 
 # define tweet message where %s is the filename of the loaded track (without
-# leading track number and filetype extension). clientside url shortening
+# leading track number and filetype extension). clientside url shortening is
 # recommended.
 TW_MSG="#nowplaying: %s http://streaming.fueralle.org:8000/radiot.ogg.m3u #dnb #drumandbass"
 

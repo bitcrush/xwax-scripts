@@ -1,5 +1,4 @@
 #!/bin/bash
-# vim: fdm=marker ts=4 sw=4
 
 # start script for xwax (http://www.xwax.co.uk)
 # by rcn @ irc.freenode.net
@@ -8,23 +7,24 @@
 # all configuration is done in the config file (default: ~/.xwax/config).
 
 # functions {{{
-errorexit() { echo; echo "error: $*"; echo; exit 1; }
+errorexit() { echo -e "\nerror: $*\n" >&2; exit 1; }
 
 helpscreen() {
     echo
     echo -e "start script for xwax (http://www.xwax.co.uk)"
     echo -e "by rcn @ irc.freenode.net"
     echo
-    echo -e "usage:\t ${0##*/} [<options>]"
+    echo -e "usage:\t${0##*/} [<options>]"
     echo
     echo -e "  -h:\tprint this screen"
     echo -e "  -log:\tlog played tracks to file"
     echo -e "  -n:\tavoid adding empty crates"
-    echo -e "  -tw:\tuse the import-twitter script for playlist tweeting"
-    echo 
+    echo -e "  -tw:\ttweet each loaded track"
+    echo
 }
 
 find_audio_files() {
+    # search folder for audio files and stop after first match
     find $1 -follow -iname '*.ogg' -o \
                     -iname '*.aac' -o \
                     -iname '*.cdaudio' -o \
@@ -36,8 +36,8 @@ find_audio_files() {
 
 create_tc_string() {
     # create a string from each timecode array
-    for tc1 in ${TC1[@]}; do TC1S+="-t $tc1 "; done
-    for tc2 in ${TC2[@]}; do TC2S+="-t $tc2 "; done
+    for i in ${TC1[@]}; do TC1S+="-t $i "; done
+    for i in ${TC2[@]}; do TC2S+="-t $i "; done
 }
 
 create_cr_string() {
@@ -57,6 +57,7 @@ create_cs_string() {
     IFS=$'\n'
     for crate in ${CRATEX[@]}
     do
+        # bad, use: while read line; do ..; done < <(command)
         for scrate in `find $crate -follow -type d`
         do
             if [[ $CHECK_NONEMPTY = 1 ]]; then
@@ -128,8 +129,10 @@ create_cs_string
 create_pl_string
 
 # generate command line
-START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS -m $BTIME $TC1S -$RPM1 -a $DECK1 $TC2S -$RPM2 -a $DECK2"
+START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS -m $BTIME \
+$TC1S -${RPM[1]} -a ${DECK[1]} $TC2S -${RPM[2]} -a ${DECK[2]}"
 
 # run xwax
-echo $START | sh
+sh <<<"$START"
 
+# vim: fdm=marker ts=4 sw=4
