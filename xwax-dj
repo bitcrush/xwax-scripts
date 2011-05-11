@@ -57,15 +57,14 @@ create_cs_string() {
     IFS=$'\n'
     for crate in ${CRATEX[@]}
     do
-        # bad, use: while read line; do ..; done < <(command)
-        for scrate in `find $crate -follow -type d`
+        while read -r scrate
         do
             if [[ $CHECK_NONEMPTY = 1 ]]; then
                 [[ `find_audio_files $scrate | wc -l` != 0 ]] && CRATES+="-l \"$scrate\" "
             else
                 CRATES+="-l \"$scrate\" "
             fi
-        done
+        done < <(find $crate -follow -type d)
     done
     unset IFS
 }
