@@ -1,25 +1,27 @@
 #!/bin/bash
 
-# start script for xwax (http://www.xwax.co.uk)
-# by rcn @ irc.freenode.net
+# start script for xwaxed (http://sighter.ath.cx/cgit/cgit.cgi/xwaxed/)
+# xwaxed is a fork of xwax (http://www.xwax.co.uk)
+# script by rcn @ irc.freenode.net
 # get the latest version from https://github.com/bitcrush/xwax-scripts
 #
 # all configuration is done in the config file (default: ~/.xwax/config).
 
 # functions {{{
-errorexit() { echo -e "\nerror: $*\n" >&2; exit 1; }
+errorexit() { echo "error: $*" >&2; exit 1; }
 
 helpscreen() {
     echo
-    echo -e "start script for xwax (http://www.xwax.co.uk)"
+    echo -e "start script for xwaxed (http://sighter.ath.cx/cgit/cgit.cgi/xwaxed/)"
     echo -e "by rcn @ irc.freenode.net"
     echo
     echo -e "usage:\t${0##*/} [<options>]"
     echo
     echo -e "  -h:\tprint this screen"
-    echo -e "  -log:\tlog played tracks to file"
+    echo -e "  -l:\tlog played tracks to file"
     echo -e "  -n:\tavoid adding empty crates"
-    echo -e "  -tw:\ttweet each loaded track"
+    echo -e "  -p:\tuse deck protection (overrides config setting)"
+    echo -e "  -t:\ttweet each loaded track"
     echo
 }
 
@@ -92,27 +94,26 @@ export LOG_SWITCH=0
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
 # evaluate command line parameters
-for (( i=1; i<=$#; i++ )) ; do
-    case ${!i} in
-        '-h'|'--help')
-                helpscreen; exit 0
-                ;;
-        '-log') [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
+while getopts ":hlnpt" opt; do
+  case "$opt" in
+        'h')    helpscreen; exit 0 ;;
+        'l')    [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
                 export LOG_SWITCH=1
                 export LOG_FILE
                 ;;
-        '-n')   CHECK_NONEMPTY=1
-                ;;
-        '-tw')  [[ -e `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
+        'n')    CHECK_NONEMPTY=1 ;;
+        'p')    PROT=1 ;;
+        't')    [[ `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
                 export TW_SWITCH=1
                 export TW_CLI
                 export TW_LPLYD
                 export TW_MSG
                 ;;
+        '?')    errorexit "Unknown option \"-$OPTARG\". Use -h for help." ;;
         *)      helpscreen
-                errorexit "unknown option ${!i}. aborting ..."
+                errorexit "Unknown error while processing options"
                 ;;
-    esac
+  esac
 done
 
 # delete last_played file at startup (if exists)
