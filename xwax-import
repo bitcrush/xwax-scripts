@@ -11,21 +11,23 @@
 
 FILE="$1"
 RATE="$2"
-TUNE="${FILE##*/}"
 
 tweet() {
     # save previously loaded track to variable
     TW_TUNE=$(cat "$TW_LPLYD")
+
     # tweet in background and redirect stdout to stderr
     TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
     echo "$TWEET" | "$TW_CLI" >&2 &
 }
 
 # determine filetype extension of currently loaded track
+TUNE="${FILE##*/}"
 EXT=${TUNE##*.}
 
 # trim filename to '$artist - $title'
-TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
+TUNE=${TUNE%.*}
+TUNE=${TUNE#[0-9]*\ }
 
 # check if a track had been loaded before. if so, tweet it.
 [[ $TW_SWITCH -eq 1 && -f "$TW_LPLYD" ]] && tweet
@@ -39,16 +41,6 @@ TUNE=$(echo "$TUNE" | sed "s/^[0-9]*\ //;s/\.$EXT$//")
 # decode input to raw audio and send to stdout
 case "$FILE" in
 
-#*.ogg)
-#    echo "Calling Ogg decoder..." >&2
-#    exec oggdec -Q --bits 16 --endianness 0 --sign 1 --raw --output - "$FILE"
-#    ;;
-
-*.aac|*.m4a)
-    echo "Calling AAC decoder..." >&2
-    exec faad -b 1 -f 2 -w "$FILE"
-    ;;
-
 *.cdaudio)
     echo "Calling CD extract..." >&2
     exec cdparanoia -r `cat "$FILE"` -
@@ -56,14 +48,8 @@ case "$FILE" in
 
 *.mp3)
     echo "Calling MP3 decoder..." >&2
-    #exec mpg123 -q -s --rate 44100 --stereo "$FILE"
     exec mpg123 -q -s --rate "$RATE" --stereo "$FILE"
     ;;
-
-#*.flac)
-#    echo "Calling FLAC decoder..." >&2
-#    exec flac -d -c -s --force-raw-format --sign=signed --endian=little "$FILE"
-#    ;;
 
 *)
     echo "Calling fallback decoder..." >&2
