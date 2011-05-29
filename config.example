@@ -15,6 +15,13 @@ PLAYLISTS="$MLIB/playlists"
 LOG_PATH="$HOME/.xwax/logs"
 LOG_FILE="$LOG_PATH/$(date +%F_%H-%M-%S)_log.txt"
 
+# path where session playlists get written to (will be created if nonexistent)
+# a session playlist contains the full filename of every loaded track
+# when the start script is invoked with the -s option each playlist found in
+# $SS_PATH is displayed in a separate crate
+SS_PATH="$HOME/.xwax/sessions"
+SS_FILE="$SS_PATH/$(date +%F_%H-%M-%S)_session.txt"
+
 # define your crates in an array
 CRATE[1]="$MLIB/library"
 CRATE[2]="$MLIB/recent"

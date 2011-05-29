@@ -19,7 +19,9 @@ helpscreen() {
     echo
     echo -e "  -h:\tprint this screen"
     echo -e "  -l:\tcreate a playlist from current session (filename w/o extension)"
+    echo -e "  -L:\tcreate a loadable playlist from current session (full filename)"
     echo -e "  -p:\tuse deck protection (overrides config setting)"
+    echo -e "  -s:\tload previous sessions as separate crates"
     echo -e "  -t:\ttweet each loaded track"
     echo
 }
@@ -83,24 +85,44 @@ create_pl_string() {
     done
 }
 
+create_ss_string() {
+    # create a string from all nonempty playlists found in $SS_PATH
+    IFS=$'\n'
+    SESSIONARRAY=($(find $SS_PATH -type f))
+    tLen=${#SESSIONARRAY[@]}
+    unset IFS
+    
+    for (( i=0; i<${tLen}; i++ ));
+    do
+        [[ -s ${SESSIONARRAY[$i]} ]] && SESSIONS+="-p \"${SESSIONARRAY[$i]}\" "
+    done
+}
+
 # }}}
 
 # source configuration file
 export CONFIGFILE="$HOME/.xwax/config"
 export TW_SWITCH=0
 export LOG_SWITCH=0
+export SS_SWITCH=0
+export LOAD_SS=0
 
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
 # evaluate command line parameters
-while getopts ":hlpt" opt; do
+while getopts ":hlLpst" opt; do
     case "$opt" in
         'h')    helpscreen; exit 0 ;;
         'l')    [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
                 export LOG_SWITCH=1
                 export LOG_FILE
                 ;;
+        'L')    [[ -d $SS_PATH ]] || mkdir -p "$SS_PATH"
+                export SS_SWITCH=1
+                export SS_FILE
+                ;;
         'p')    PROT=1 ;;
+        's')    LOAD_SS=1 ;;
         't')    [[ `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
                 export TW_SWITCH=1
                 export TW_CLI
@@ -125,9 +147,10 @@ create_tc_string
 create_cr_string
 create_cs_string
 create_pl_string
+[[ $LOAD_SS -eq 1 ]] && create_ss_string
 
 # generate command line
-START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS -m $BTIME \
+START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS $SESSIONS -m $BTIME \
 $TC1S -${RPM[1]} -a ${DECK[1]} $TC2S -${RPM[2]} -a ${DECK[2]}"
 
 # run xwax

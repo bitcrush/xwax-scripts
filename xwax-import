@@ -30,13 +30,16 @@ TUNE=${TUNE%.*}
 TUNE=${TUNE#[0-9]*\ }
 
 # check if a track had been loaded before. if so, tweet it.
-[[ $TW_SWITCH -eq 1 && -f "$TW_LPLYD" ]] && tweet
+[[ $TW_SWITCH -eq 1 && -f $TW_LPLYD ]] && tweet
 
-# write to PLS_FILE if configured
-[[ $PLS_SWITCH -eq 1 ]] && echo $TUNE >> $PLS_FILE
+# write to $LOG_FILE if configured
+[[ $LOG_SWITCH -eq 1 ]] && echo "$TUNE" >> "$LOG_FILE"
+
+# write to $SS_FILE if configured
+[[ $SS_SWITCH -eq 1 ]] && echo "$FILE" >> "$SS_FILE"
 
 # write to last_played file if configured
-[[ $TW_SWITCH -eq 1 && -n "$TW_LPLYD" ]] && echo $TUNE > $TW_LPLYD
+[[ $TW_SWITCH -eq 1 && -n $TW_LPLYD ]] && echo "$TUNE" > "$TW_LPLYD"
 
 # decode input to raw audio and send to stdout
 case "$FILE" in
