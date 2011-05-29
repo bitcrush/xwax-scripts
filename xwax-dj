@@ -3,7 +3,7 @@
 # start script for xwaxed (http://sighter.ath.cx/cgit/cgit.cgi/xwaxed/)
 # xwaxed is a fork of xwax (http://www.xwax.co.uk)
 # script by rcn @ irc.freenode.net
-# get the latest version from https://github.com/bitcrush/xwax-scripts
+# get the latest version at https://github.com/bitcrush/xwax-scripts
 #
 # all configuration is done in the config file (default: ~/.xwax/config).
 
@@ -18,8 +18,7 @@ helpscreen() {
     echo -e "usage:\t${0##*/} [<options>]"
     echo
     echo -e "  -h:\tprint this screen"
-    echo -e "  -l:\tlog played tracks to file"
-    echo -e "  -n:\tavoid adding empty crates"
+    echo -e "  -l:\tcreate a playlist from current session (filename w/o extension)"
     echo -e "  -p:\tuse deck protection (overrides config setting)"
     echo -e "  -t:\ttweet each loaded track"
     echo
@@ -46,7 +45,7 @@ create_cr_string() {
     # create a string from all the crates specified in the CRATE array
     for crate in ${CRATE[@]}
     do
-        if [[ $CHECK_NONEMPTY = 1 ]]; then
+        if [[ $NO_EMPTY = 1 ]]; then
             [[ `find_audio_files $crate | wc -l` != 0 ]] && CRATES+="-l \"$crate\" "
         else
             CRATES+="-l \"$crate\" "
@@ -61,7 +60,7 @@ create_cs_string() {
     do
         while read -r scrate
         do
-            if [[ $CHECK_NONEMPTY = 1 ]]; then
+            if [[ $NO_EMPTY = 1 ]]; then
                 [[ `find_audio_files $scrate | wc -l` != 0 ]] && CRATES+="-l \"$scrate\" "
             else
                 CRATES+="-l \"$scrate\" "
@@ -94,14 +93,13 @@ export LOG_SWITCH=0
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
 # evaluate command line parameters
-while getopts ":hlnpt" opt; do
-  case "$opt" in
+while getopts ":hlpt" opt; do
+    case "$opt" in
         'h')    helpscreen; exit 0 ;;
         'l')    [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
                 export LOG_SWITCH=1
                 export LOG_FILE
                 ;;
-        'n')    CHECK_NONEMPTY=1 ;;
         'p')    PROT=1 ;;
         't')    [[ `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
                 export TW_SWITCH=1
@@ -113,7 +111,7 @@ while getopts ":hlnpt" opt; do
         *)      helpscreen
                 errorexit "Unknown error while processing options"
                 ;;
-  esac
+    esac
 done
 
 # delete last_played file at startup (if exists)

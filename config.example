@@ -6,16 +6,25 @@
 # path to music library
 MLIB="/media/music"
 
-# path to playlists (to use for playing, not logging!)
-PLAYLISTS="/mnt/sdb3/xwax/playlists"
+# path where playlists are stored
+PLAYLISTS="$MLIB/playlists"
+
+# path where log files get written to (will be created if nonexistent)
+# this creates log files in a more readable format since path name, leading
+# numbers and filetype extensions are trimmed from filename
+LOG_PATH="$HOME/.xwax/logs"
+LOG_FILE="$LOG_PATH/$(date +%F_%H-%M-%S)_log.txt"
 
 # define your crates in an array
 CRATE[1]="$MLIB/library"
 CRATE[2]="$MLIB/recent"
 CRATE[3]="$MLIB/tmp"
 
-# each subfolder found in CRATEX is displayed in a seperate crate (optional)
-#CRATEX[1]="$MLIB/tmp"
+# each 1st level subfolder found in CRATEX is displayed in a separate crate (optional)
+#CRATEX[1]="$MLIB"
+
+# don't add folders that don't include audio files to the list of crates
+NO_EMPTY=1
 
 # define import and scan scripts (optional)
 #IMPORT="$HOME/.xwax/xwax-import"
@@ -32,7 +41,7 @@ BTIME=8
 
 # timecodes on respective deck (optional - default: serato_2a)
 # last element of each array will be active after starting xwax
-# xwax -h for a list of available timecodes
+# run xwax -h for a list of available timecodes
 TC1=("serato_2b" "serato_2a")
 TC2=("serato_2b" "serato_2a")
 
@@ -46,10 +55,6 @@ DECK[2]="plughw:Audio4DJ,0,1"
 
 # deck protection (bool, 1 = on)
 PROT=0
-
-# path where playlists get written to (will be created if nonexistent)
-LOG_PATH="$HOME/.xwax/playlists"
-LOG_FILE="$LOG_PATH/$(date +%F_%H-%M-%S)_playlist.txt"
 
 # define your twitter client - there are several cli clients out there
 # f.e. bti (http://gregkh.github.com/bti/)
