@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# start script for xwaxed (http://sighter.ath.cx/cgit/cgit.cgi/xwaxed/)
-# xwaxed is a fork of xwax (http://www.xwax.co.uk)
+# start script for xwax / xwaxed / s-xwax
+# xwaxed: http://sighter.ath.cx/cgit/cgit.cgi/xwaxed/
+# s-xwax: https://github.com/doublerebel/s-xwax
+# xwaxed and s-xwax are forks of xwax (http://www.xwax.co.uk)
+#
 # script by rcn @ irc.freenode.net
 # get the latest version at https://github.com/bitcrush/xwax-scripts
 #
@@ -12,15 +15,15 @@ errorexit() { echo "error: $*" >&2; exit 1; }
 
 helpscreen() {
     echo
-    echo -e "start script for xwaxed (http://sighter.ath.cx/cgit/cgit.cgi/xwaxed/)"
+    echo -e "start script for xwax / xwaxed / s-xwax"
     echo -e "by rcn @ irc.freenode.net"
     echo
     echo -e "usage:\t${0##*/} [<options>]"
     echo
     echo -e "  -h:\tprint this screen"
-    echo -e "  -l:\tcreate a playlist from current session (filename w/o extension)"
-    echo -e "  -L:\tcreate a loadable playlist from current session (full filename)"
-    echo -e "  -s:\tload previous sessions as separate crates"
+    echo -e "  -l:\tlog loaded tracks to file (filename w/o extension and leading nr)"
+    echo -e "  -s:\tlog session to a playlist file (full filename)"
+    echo -e "  -S:\tload previous sessions as separate crates"
     echo -e "  -t:\ttweet each loaded track"
     echo
 }
@@ -109,18 +112,18 @@ export LOAD_SS=0
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
 # evaluate command line parameters
-while getopts ":hlLst" opt; do
+while getopts ":hlsSt" opt; do
     case "$opt" in
         'h')    helpscreen; exit 0 ;;
         'l')    [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
                 export LOG_SWITCH=1
                 export LOG_FILE
                 ;;
-        'L')    [[ -d $SS_PATH ]] || mkdir -p "$SS_PATH"
+        's')    [[ -d $SS_PATH ]] || mkdir -p "$SS_PATH"
                 export SS_SWITCH=1
                 export SS_FILE
                 ;;
-        's')    LOAD_SS=1 ;;
+        'S')    LOAD_SS=1 ;;
         't')    [[ `which $TW_CLI` ]] || errorexit "$TW_CLI not found"
                 export TW_SWITCH=1
                 export TW_CLI
@@ -137,8 +140,9 @@ done
 # delete last_played file at startup (if exists)
 [[ -f $TW_LPLYD ]] && rm $TW_LPLYD
 
-# check for deck protection
-[[ $PROT -eq 1 ]] && PROT="-dp " || unset PROT
+# if configured set deck protection (only if supported, else ignore)
+DP=$($XWAX -h 2>&1 | grep -io 'deck protection')
+[[ $PROT -eq 1 && -n $FORK ]] && PROT="-dp " || unset PROT
 
 # create strings
 create_tc_string
