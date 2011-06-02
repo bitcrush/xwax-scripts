@@ -12,15 +12,6 @@
 FILE="$1"
 RATE="$2"
 
-tweet() {
-    # save previously loaded track to variable
-    TW_TUNE=$(cat "$TW_LPLYD")
-
-    # tweet in background and redirect stdout to stderr
-    TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
-    echo "$TWEET" | "$TW_CLI" >&2 &
-}
-
 # determine filetype extension of currently loaded track
 TUNE="${FILE##*/}"
 EXT=${TUNE##*.}

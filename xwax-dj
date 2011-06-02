@@ -100,9 +100,18 @@ create_ss_string() {
     done
 }
 
+tweet() {
+    # save previously loaded track to variable
+    TW_TUNE=$(cat "$TW_LPLYD")
+
+    # tweet in background and redirect stdout to stderr
+    TWEET=$(printf "$TW_MSG\n" "$TW_TUNE")
+    echo "$TWEET" | "$TW_CLI" >&2 &
+}
+
 close() {
     # on SIGTERM tweet last loaded track
-    [[ $TW_SWITCH -eq 1 ]] # && tweet
+    [[ $TW_SWITCH -eq 1 ]] && tweet
     echo -ne "\nBye ;)\n"
     exit 0
 }
@@ -115,6 +124,7 @@ export TW_SWITCH=0
 export LOG_SWITCH=0
 export SS_SWITCH=0
 export LOAD_SS=0
+export -f tweet
 
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
