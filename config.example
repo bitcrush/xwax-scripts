@@ -75,3 +75,5 @@ TW_MSG="#nowplaying: %s http://streaming.fueralle.org:8000/radiot.ogg.m3u #dnb #
 # path to last_played file (required for tweeting)
 TW_LPLYD="/tmp/xwax_last_played.txt"
 
+# tweet last loaded track on exit (bool, 1 = on)
+TW_ON_EXIT=1

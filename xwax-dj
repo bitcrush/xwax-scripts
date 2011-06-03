@@ -111,7 +111,7 @@ tweet() {
 
 close() {
     # on SIGTERM tweet last loaded track
-    [[ $TW_SWITCH -eq 1 ]] && tweet
+    [[ $TW_SWITCH -eq 1 && $TW_ON_EXIT -eq 1 ]] && tweet
     echo -ne "\nBye ;)\n"
     exit 0
 }
