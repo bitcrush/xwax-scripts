@@ -162,7 +162,7 @@ done
 
 # if configured set deck protection (only if supported, else ignore)
 DP=$($XWAX -h 2>&1 | grep -io 'deck protection')
-[[ $PROT -eq 1 && -n $FORK ]] && PROT="-dp " || unset PROT
+[[ $PROT -eq 1 && -n $DP ]] && PROT="-dp " || unset PROT
 
 # create strings
 create_tc_string
