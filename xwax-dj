@@ -8,7 +8,7 @@
 # script by rcn @ irc.freenode.net
 # get the latest version at https://github.com/bitcrush/xwax-scripts
 #
-# all configuration is done in the config file (default: ~/.xwax/config).
+# all configuration is done in the config file (default: ~/.config/xwax/xwaxrc).
 
 # functions {{{
 errorexit() { echo "error: $*" >&2; exit 1; }
@@ -119,7 +119,7 @@ close() {
 # }}}
 
 # source configuration file
-export CONFIGFILE="$HOME/.xwax/config"
+export CONFIGFILE="$HOME/.config/xwax/xwaxrc"
 export TW_SWITCH=0
 export LOG_SWITCH=0
 export SS_SWITCH=0

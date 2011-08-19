@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# $HOME/.xwax/config
+# $HOME/.config/xwax/xwaxrc
 # this is the configuration file for the xwax start script
 
 # path to music library
