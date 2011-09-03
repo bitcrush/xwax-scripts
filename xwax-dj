@@ -21,6 +21,7 @@ helpscreen() {
     echo -e "usage:\t${0##*/} [<options>]"
     echo
     echo -e "  -h:\tprint this screen"
+    echo -e "  -d:\tspecify single deck to initiate"
     echo -e "  -l:\tlog loaded tracks to file (filename w/o extension and leading nr)"
     echo -e "  -s:\tlog session to a playlist file (full filename)"
     echo -e "  -S:\tload previous sessions as separate crates"
@@ -100,6 +101,18 @@ create_ss_string() {
     done
 }
 
+create_dk_string() {
+    # create a string from all devices found in $DECK array
+    if [[ -z $DECKNR ]]; then
+        for d in $(seq ${#DECK[@]});
+        do
+            DECKS+="$(eval echo \$TC$(echo $d)S -${RPM[$d]} -a ${DECK[$d]}) "
+        done
+    else
+        DECKS+="$(eval echo \$TC$(echo $DECKNR)S -${RPM[$DECKNR]} -a ${DECK[$DECKNR]}) "
+    fi
+}
+
 tweet() {
     # save previously loaded track to variable
     TW_TUNE=$(cat "$TW_LPLYD")
@@ -118,13 +131,14 @@ close() {
 
 # }}}
 
-# source configuration file
+# source configuration file and set defaults
 export CONFIGFILE="$HOME/.config/xwax/xwaxrc"
 export TW_SWITCH=0
 export LOG_SWITCH=0
 export SS_SWITCH=0
 export LOAD_SS=0
 export -f tweet
+unset DECKNR
 
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
@@ -132,9 +146,12 @@ export -f tweet
 trap close SIGTERM
 
 # evaluate command line parameters
-while getopts ":hlsSt" opt; do
+while getopts ":hd:lsSt" opt; do
     case "$opt" in
         'h')    helpscreen; exit 0 ;;
+        'd')    DECKNR=$OPTARG
+                [[ $DECKNR == [1-${#DECK[@]}] ]] || errorexit "Deck number is out of range"
+                ;;
         'l')    [[ -d $LOG_PATH ]] || mkdir -p "$LOG_PATH"
                 export LOG_SWITCH=1
                 export LOG_FILE
@@ -169,11 +186,11 @@ create_tc_string
 create_cr_string
 create_cs_string
 create_pl_string
+create_dk_string
 [[ $LOAD_SS -eq 1 ]] && create_ss_string
 
 # generate command line
-START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS $SESSIONS -m $BTIME \
-$TC1S -${RPM[1]} -a ${DECK[1]} $TC2S -${RPM[2]} -a ${DECK[2]}"
+START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS $SESSIONS -m $BTIME $DECKS"
 
 # run xwax
 sh <<<"$START"
