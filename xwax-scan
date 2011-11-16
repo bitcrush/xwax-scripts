@@ -20,6 +20,8 @@ if [ -d "$PATHNAME" ]; then
                                 -iname '*.mp3' -o \
                                 -iname '*.flac' -o \
                                 -iname '*.m4a' -o \
+                                -iname '*.aif' -o \
+                                -iname '*.aiff' -o \
                                 -iname '*.wav' #-exec readlink -f {} \;
 else
     cat "$PATHNAME"
