@@ -28,6 +28,24 @@ helpscreen() {
     echo
 }
 
+detect_card() {
+    # look for known audio cards
+    for CARD in Audio4DJ Audio8DJ; do
+        if [[ `grep -o $CARD /proc/asound/cards` == $CARD ]]; then
+            DECK[1]="plughw:$CARD,0,0"
+            DECK[2]="plughw:$CARD,0,1"
+        fi
+    done
+
+    for CARD in SL1; do
+        if [[ `grep -o $CARD /proc/asound/cards` == $CARD ]]; then
+            CARDNR=$(grep -oP "[0-9]+(?=.*$CARD)" /proc/asound/cards)
+            DECK[1]="hw:$CARDNR,0"
+            DECK[2]="hw:$CARDNR,1"
+        fi
+    done
+}
+
 find_audio_files() {
     # search folder for audio files and stop after first match
     find $1 -follow -iname '*.ogg' -o \
@@ -172,6 +190,9 @@ create_cr_string
 create_cs_string
 create_pl_string
 [[ $LOAD_SS -eq 1 ]] && create_ss_string
+
+# detect sound card
+[[ $DETECT -eq 1 ]] && detect_card
 
 # generate command line
 START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS $SESSIONS -m $BTIME \

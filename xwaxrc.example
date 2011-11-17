@@ -56,7 +56,13 @@ TC2=("serato_2b" "serato_2a")
 RPM[1]=33
 RPM[2]=33
 
+# detect and configure sound card automatically
+# currently supported are Audio4DJ, Audio8DJ and SL-1
+# (only works for the first device pair of the card)
+DETECT=1
+
 # sound card device for respective deck (check output of 'aplay -l')
+# these are the values to fall back to after automatic detection fails
 DECK[1]="plughw:Audio4DJ,0,0"
 DECK[2]="plughw:Audio4DJ,0,1"
 
