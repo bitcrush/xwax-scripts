@@ -132,7 +132,7 @@ tweet() {
 close() {
     # on SIGTERM tweet last loaded track
     [[ $TW_SWITCH -eq 1 && $TW_ON_EXIT -eq 1 ]] && tweet
-    echo -ne "\nBye ;)\n"
+    echo -ne "\nBye ;)\n" >&2 &
     exit 0
 }
 
@@ -199,6 +199,6 @@ START="$XWAX $PROT -r $SRATE -i $IMPORT -s $SCAN $CRATES $LISTS $SESSIONS -m $BT
 $TC1S -${RPM[1]} -a ${DECK[1]} $TC2S -${RPM[2]} -a ${DECK[2]}"
 
 # run xwax
-sh <<<"$START"
+eval "$START"
 
 # vim: fdm=marker ts=4 sw=4
