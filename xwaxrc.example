@@ -12,14 +12,14 @@ PLAYLISTS="$MLIB/playlists"
 # path where log files get written to (will be created if nonexistent)
 # this creates log files in a more readable format since path name, leading
 # numbers and filetype extensions are trimmed from filename
-LOG_PATH="$HOME/.xwax/logs"
+LOG_PATH="$HOME/.config/xwax/logs"
 LOG_FILE="$LOG_PATH/log_$(date +%F_%H-%M-%S).txt"
 
 # path where session playlists get written to (will be created if nonexistent)
 # a session playlist contains the full filename of every loaded track
 # when the start script is invoked with the -s option each playlist found in
 # $SS_PATH is displayed in a separate crate
-SS_PATH="$HOME/.xwax/sessions"
+SS_PATH="$HOME/.config/xwax/sessions"
 SS_FILE="$SS_PATH/session_$(date +%F_%H-%M-%S)"
 
 # define your crates in an array
