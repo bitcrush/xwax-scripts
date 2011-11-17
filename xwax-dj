@@ -148,8 +148,8 @@ export -f tweet
 
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
-# trap SIGTERM (closing xwax)
-trap close SIGTERM
+# trap EXIT (closing xwax)
+trap close EXIT
 
 # evaluate command line parameters
 while getopts ":hlsSt" opt; do
