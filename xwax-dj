@@ -36,6 +36,8 @@ find_audio_files() {
                     -iname '*.mp3' -o \
                     -iname '*.flac' -o \
                     -iname '*.m4a' -o \
+                    -iname '*.aif' -o \
+                    -iname '*.aiff' -o \
                     -iname '*.wav' | grep -m1 -
 }
 
