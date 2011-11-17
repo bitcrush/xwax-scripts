@@ -56,8 +56,8 @@ TC2=("serato_2b" "serato_2a")
 RPM[1]=33
 RPM[2]=33
 
-# detect and configure sound card automatically
-# currently supported are Audio4DJ, Audio8DJ and SL-1
+# detect and configure sound card automatically (bool, 1 = on)
+# currently supported are Audio4DJ, Audio8DJ and SL-1 devices
 # (only works for the first device pair of the card)
 DETECT=1
 
