@@ -31,18 +31,16 @@ helpscreen() {
 
 detect_card() {
     # look for known audio cards
-    for CARD in Audio4DJ Audio8DJ; do
+    for CARD in SL1 Audio4DJ Audio8DJ; do
         if [[ `grep -o $CARD /proc/asound/cards` == $CARD ]]; then
-            DECK[1]="plughw:$CARD,0,0"
-            DECK[2]="plughw:$CARD,0,1"
-        fi
-    done
-
-    for CARD in SL1; do
-        if [[ `grep -o $CARD /proc/asound/cards` == $CARD ]]; then
-            CARDNR=$(grep -oP "[0-9]+(?=.*$CARD)" /proc/asound/cards)
-            DECK[1]="hw:$CARDNR,0"
-            DECK[2]="hw:$CARDNR,1"
+            if  [[ $CARD == "SL1" ]]; then
+                CARDNR=$(grep -oP "[0-9]+(?=.*$CARD)" /proc/asound/cards)
+                DECK[1]="hw:$CARDNR,0"
+                DECK[2]="hw:$CARDNR,1"
+            else
+                DECK[1]="plughw:$CARD,0,0"
+                DECK[2]="plughw:$CARD,0,1"
+            fi
         fi
     done
 }
@@ -143,7 +141,7 @@ tweet() {
 }
 
 close() {
-    # on SIGTERM tweet last loaded track
+    # on EXIT tweet last loaded track
     [[ $TW_SWITCH -eq 1 && $TW_ON_EXIT -eq 1 ]] && tweet
     echo -ne "\nBye ;)\n" >&2 &
     exit 0
@@ -163,7 +161,7 @@ unset DECKNR
 [[ -r $CONFIGFILE ]] && source $CONFIGFILE || errorexit "$CONFIGFILE doesn't exist or is not readable by the user."
 
 # trap EXIT (closing xwax)
-trap close EXIT
+[[ $1 != "-h" ]] && trap close EXIT
 
 # evaluate command line parameters
 while getopts ":hd:lsSt" opt; do
