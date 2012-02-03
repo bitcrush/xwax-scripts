@@ -195,9 +195,8 @@ done
 # delete last_played file at startup (if exists)
 [[ -f $TW_LPLYD ]] && rm $TW_LPLYD
 
-# if configured set deck protection (only if supported, else ignore)
-DP=$($XWAX -h 2>&1 | grep -io 'deck protection')
-[[ $PROT -eq 1 && -n $DP ]] && PROT="-dp " || unset PROT
+# if configured set deck protection
+[[ $PROT -eq 1 ]] && PROT="-c " || unset PROT
 
 # create strings
 create_tc_string
