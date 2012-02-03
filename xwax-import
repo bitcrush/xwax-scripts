@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Audio import handler for xwax
+#
 # This script takes a filename as an argument, and outputs signed,
 # little-endian, 16-bit, 2 channel audio on standard output, errors to
 # standard error and tweets the name of a tune on loading the next one.
@@ -8,6 +10,7 @@
 #
 # You can adjust this script yourself to customise the support for
 # different file formats and codecs.
+#
 
 FILE="$1"
 RATE="$2"

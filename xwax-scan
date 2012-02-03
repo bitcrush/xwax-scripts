@@ -1,5 +1,4 @@
 #!/bin/sh
-# vim: fdm=marker
 #
 # Take a pathname as an argument and output a playlist to standard
 # output and errors to standard error.
@@ -14,28 +13,21 @@
 PATHNAME="$1"
 
 if [ -d "$PATHNAME" ]; then
-    find -L "$PATHNAME" -type f -iname '*.ogg' -o \
-                                -iname '*.aac' -o \
-                                -iname '*.cdaudio' -o \
-                                -iname '*.mp3' -o \
-                                -iname '*.flac' -o \
-                                -iname '*.m4a' -o \
-                                -iname '*.aif' -o \
-                                -iname '*.aiff' -o \
-                                -iname '*.wav' #-exec readlink -f {} \;
+	find -L "$PATHNAME" -type f |
+		grep -E '\.(ogg|oga|aac|cdaudio|mp3|flac|wav|aif|aiff|m4a|wma)$'
 else
-    cat "$PATHNAME"
+	cat "$PATHNAME"
 fi | sed -n '
 {
 # /[<num>[.]] <artist> - <title>.ext
-s:/\([0-9]\+.\? \+\)\?\([^/]*\) \+- \+\([^/]*\)\.[a-zA-Z0-9]*$:\0\t\2\t\3:p
+s:/\([0-9]\+.\? \+\)\?\([^/]*\) \+- \+\([^/]*\)\.[A-Z0-9]*$:\0\t\2\t\3:pi
 t
 
-# /<artist> - <album>[/Disc <n>.*]/[<num>[.]] <title>.ext
-s:/\([^/]*\) \+- \+\([^/]*\)\(/Disc [0-9][^/]*\)\?/\([0-9]\+.\? \+\)\?\([^/]*\)\.[a-zA-Z0-9]*$:\0\t\1\t\5:p
+# /<artist> - <album>[/(Disc|Side) <name>]/[<ABnum>[.]] <title>.ext
+s:/\([^/]*\) \+- \+\([^/]*\)\(/\(disc\|side\) [0-9A-Z][^/]*\)\?/\([A-H]\?[A0-9]\?[0-9].\? \+\)\?\([^/]*\)\.[A-Z0-9]*$:\0\t\1\t\6:pi
 t
 
-# /[<num>[.]] <name>.ext
-s:/\([0-9]\+.\? \+\)\?\([^/]*\)\.[a-zA-Z0-9]*$:\0\t\t\2:p
+# /[<ABnum>[.]] <name>.ext
+s:/\([A-H]\?[A0-9]\?[0-9].\? \+\)\?\([^/]*\)\.[A-Z0-9]*$:\0\t\t\2:pi
 }
 '
