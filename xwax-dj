@@ -66,6 +66,7 @@ create_tc_string() {
 
 create_cr_string() {
     # create a string from all the crates specified in the CRATE array
+    IFS=$'\n'
     for crate in ${CRATE[@]}
     do
         if [[ $NO_EMPTY = 1 ]]; then
